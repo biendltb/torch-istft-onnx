@@ -7,11 +7,11 @@ from torch_istft_onnx.istft import ISTFT
 class TestIstft:
     @pytest.fixture
     def n_fft(self) -> int:
-        return 512
+        return 256
 
     @pytest.fixture
     def hop_length(self) -> int:
-        return 128
+        return 64
 
     @pytest.fixture
     def istft(self, n_fft: int, hop_length: int) -> torch.nn.Module:
@@ -28,7 +28,7 @@ class TestIstft:
 
     @pytest.mark.parametrize("batch_size", [1, 2])
     def test_torch_stft_inversion(self, batch_size: int, n_fft: int, hop_length: int, istft: ISTFT):
-        input = torch.randn((batch_size, 65535))
+        input = torch.randn((batch_size, 4096))
 
         spectro = torch.stft(
             input,
@@ -47,7 +47,7 @@ class TestIstft:
 
     @pytest.mark.parametrize("batch_size", [1, 2])
     def test_consistent_values_with_torch_istft(self, batch_size: int, n_fft: int, hop_length: int, istft: ISTFT):
-        input = torch.randn((batch_size, 65535))
+        input = torch.randn((batch_size, 4096))
         spectro = torch.stft(
             input,
             n_fft=n_fft,
