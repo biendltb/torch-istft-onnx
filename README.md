@@ -15,7 +15,7 @@ Context:
 removed. However, we still can export torch models that using `torch.stft` in the mean time.
 
 So what's about `torch.istft`? PyTorch already enforce the complex tensor input for it. Sure, you can use an older version
-of PyTorch but ONNX has not yet support `torch.istft` in its latest version (opset17) (even there is an [unpublised/unfinished work](https://github.com/onnx/onnx/blob/b8baa8446686496da4cc8fda09f2b6fe65c2a02c/onnx/reference/ops/op_stft.py#L77)
+of PyTorch but ONNX has not yet support `torch.istft` in its latest version (opset 17) (even there is an [unpublised/unfinished work](https://github.com/onnx/onnx/blob/b8baa8446686496da4cc8fda09f2b6fe65c2a02c/onnx/reference/ops/op_stft.py#L77)
 for supporting it there). The issue has been [raised multiple times](https://github.com/pytorch/pytorch/issues/81075) but
 it's not clear who should take responsible for it, ONNX or PyTorch.
 
@@ -32,9 +32,9 @@ The implementation is based on [Pseeth's implementation](https://github.com/psee
 ## Contribution
 To get started; install poetry:
 
-```bash
-curl -sSL https://install.python-poetry.org | python3 -
-```
+  ```bash
+  curl -sSL https://install.python-poetry.org | python3 -
+  ```
 
 * Install the dependencies and run the unit tests,
     ```bash
