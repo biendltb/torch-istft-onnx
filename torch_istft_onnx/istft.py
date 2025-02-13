@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 from torch.nn import functional as F
 
@@ -12,15 +14,26 @@ class ISTFT(torch.nn.Module):
         self,
         n_fft: int,
         hop_length: int,
-        win_length: int,
-        window: torch.Tensor = None,
+        win_length: Optional[int] = None,
+        window: Optional[torch.Tensor] = None,
         normalized: bool = False,
-        max_frames: int = 5200,
+        max_frames: int = MAX_FRAMES,
     ):
+        """
+        Implementation of inverse Short-Time Fourier Transform (ISTFT) in PyTorch
+        Parameters
+        ----------
+        n_fft: Size of Fourier transform
+        hop_length: The distance between neighboring sliding window frames.
+        win_length: The size of window frame and STFT filter. (Default: ``n_fft``)
+        window: The optional window function. Shape must be 1d and `<= n_fft`. (Default: ``torch.ones(win_length)``)
+        normalized: Whether the STFT was normalized. (Default: ``False``)
+        max_frames: max estimate of the number of frames in the signal for sum-square window calculation
+        """
         super(ISTFT, self).__init__()
         self.n_fft = n_fft
         self.hop_length = hop_length
-        self.win_length = win_length
+        self.win_length = win_length if win_length is not None else n_fft
         self.window = window
         self.normalized = normalized
         self.forward_transform = None
@@ -88,8 +101,8 @@ class ISTFT(torch.nn.Module):
 
 
 def window_sumsquare(
-    window: torch.Tensor = None,
-    n_frames: int = 5200,
+    window: Optional[torch.Tensor] = None,
+    n_frames: int = MAX_FRAMES,
     hop_length: int = 512,
     win_length: int = 2048,
     n_fft: int = 2048,
@@ -113,7 +126,7 @@ def window_sumsquare(
         The length of each analysis frame.
     Returns
     -------
-    wss : np.ndarray, shape=`(n_fft + hop_length * (n_frames - 1))`
+    x : torch.Tensor, shape=`(n_fft + hop_length * (n_frames - 1))`
         The sum-squared envelope of the window function
     """
     if win_length is None:
