@@ -47,9 +47,9 @@ class ISTFT(torch.nn.Module):
         inverse_basis = torch.linalg.pinv(scale * fourier_basis_sliced).transpose(0, 1).unsqueeze(1).float()
         fft_window = window
         if fft_window is None:
-            fft_window = torch.ones(win_length)
+            fft_window = torch.ones(self.win_length)
         if window is not None:
-            assert n_fft >= win_length
+            assert n_fft >= self.win_length
             fft_window = pad_center(fft_window, target_length=n_fft)
             # window the bases
             inverse_basis *= fft_window
