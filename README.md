@@ -25,9 +25,23 @@ in ONNX to make the export possible.
 ## Technical details
 
 The implementation is based on [Pseeth's implementation](https://github.com/pseeth/torch-stft) with following improvements:
-* Remove dependencies on numpy, scipy and librosa.
+* Remove dependencies on `numpy`, `scipy` and `librosa`.
 * Implement a workaround to avoid OOM errors on GPU with large tensor inputs.
 * Support multiple batch sizes.
+
+## Contribution
+To get started; install poetry:
+
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+* Install the dependencies and run the unit tests,
+    ```bash
+    poetry install && poetry shell
+    pre-commit install
+    python -m pytest
+    ```
 
 ## Known issues
 
