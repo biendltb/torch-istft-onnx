@@ -7,6 +7,7 @@ from torch.nn import functional as F
 # Common values (22.05KHz): 30 secs=~2600 mels, 60 secs=~5200 mels, 100 secs=~8620 mels
 # This determines model size
 MAX_FRAMES = 5200
+EPSILON = 1e-8
 
 
 class ISTFT(torch.nn.Module):
@@ -74,19 +75,18 @@ class ISTFT(torch.nn.Module):
         assert input.shape[-1] == 2, "Last dimension must be 2 for magnitude and phase"
         device = input.device
         real, img = input[..., 0], input[..., 1]
-        # magnitude = torch.sqrt(real**2 + img**2)
-        # phase = torch.atan2(img, real)
         recombine_magnitude_phase = torch.cat([real, img], dim=1)
+        inverse_basis_device = self.inverse_basis.to(device)
         inverse_transform = F.conv_transpose1d(
             recombine_magnitude_phase,
-            self.inverse_basis.to(device),
+            inverse_basis_device,
             stride=self.hop_length,
             padding=0,
         )
         win_dim = inverse_transform.size(-1)
         window_sum_valid = self.window_sum[:win_dim].to(device)
         # remove modulation effects
-        inverse_transform = inverse_transform / (window_sum_valid + 1e-8)
+        inverse_transform = inverse_transform / (window_sum_valid + EPSILON)
         inverse_transform = inverse_transform.squeeze(dim=1)
         inverse_transform *= float(self.n_fft) / self.hop_length
 

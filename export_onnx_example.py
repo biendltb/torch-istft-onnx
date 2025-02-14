@@ -21,11 +21,12 @@ class ExampleSignalModel(nn.Module):
         )
 
     def forward(self, x):
+        device = x.device
         spec = torch.stft(
             x,
             n_fft=N_FFT,
             hop_length=HOP_LENGTH,
-            window=torch.hann_window(N_FFT),
+            window=torch.hann_window(N_FFT).to(device),
             normalized=True,
             return_complex=False,  # not return complex tensor
         )
@@ -47,7 +48,7 @@ if __name__ == "__main__":
         "/tmp/model.onnx",
         input_names=["x"],
         output_names=["y"],
-        dynamic_axes={"mix": {0: "batch_size", 2: "sample_length"}},
+        dynamic_axes={"x": {0: "batch_size", 1: "sample_length"}},
         export_params=True,
         opset_version=17,
         verbose=False,
