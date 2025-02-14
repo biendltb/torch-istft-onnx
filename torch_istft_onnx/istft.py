@@ -34,7 +34,6 @@ class ISTFT(torch.nn.Module):
         self.n_fft = n_fft
         self.hop_length = hop_length
         self.win_length = win_length if win_length is not None else n_fft
-        self.window = window
         self.normalized = normalized
         self.forward_transform = None
         scale = self.n_fft / self.hop_length
@@ -48,13 +47,12 @@ class ISTFT(torch.nn.Module):
         fft_window = window
         if fft_window is None:
             fft_window = torch.ones(self.win_length)
-        if window is not None:
-            assert n_fft >= self.win_length
-            fft_window = pad_center(fft_window, target_length=n_fft)
-            # window the bases
-            inverse_basis *= fft_window
+        assert n_fft >= self.win_length
+        fft_window = pad_center(fft_window, target_length=n_fft)
+        # window the bases
+        inverse_basis *= fft_window
         window_sum = window_sumsquare(
-            self.window,
+            fft_window,
             max_frames,
             hop_length=self.hop_length,
             win_length=self.win_length,
@@ -85,13 +83,13 @@ class ISTFT(torch.nn.Module):
             stride=self.hop_length,
             padding=0,
         )
-        if self.window is not None:
-            win_dim = inverse_transform.size(-1)
-            window_sum_valid = self.window_sum[:win_dim].to(device)
-            # # remove modulation effects
-            inverse_transform = inverse_transform / (window_sum_valid + 1e-8)
-            inverse_transform = inverse_transform.squeeze(dim=1)
-            inverse_transform *= float(self.n_fft) / self.hop_length
+        win_dim = inverse_transform.size(-1)
+        window_sum_valid = self.window_sum[:win_dim].to(device)
+        # remove modulation effects
+        inverse_transform = inverse_transform / (window_sum_valid + 1e-8)
+        inverse_transform = inverse_transform.squeeze(dim=1)
+        inverse_transform *= float(self.n_fft) / self.hop_length
+
         inverse_transform = inverse_transform[:, int(self.n_fft / 2) :]
         inverse_transform = inverse_transform[:, : -int(self.n_fft / 2)]
 
